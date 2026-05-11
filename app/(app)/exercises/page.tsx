@@ -1,37 +1,45 @@
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { createBrowserClient } from "@/lib/supabase";
 import ExerciseFilters from "@/components/ExerciseFilters";
-import { Suspense } from "react";
+import type { Exercise } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+export default function ExercisesPage() {
+  const searchParams = useSearchParams();
+  const supabase = createBrowserClient();
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-type Props = {
-  searchParams: Promise<{ q?: string; zone?: string; level?: string; material?: string }>;
-};
+  const fetchExercises = useCallback(async () => {
+    setLoading(true);
+    let query = supabase
+      .from("exercises")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-export default async function ExercisesPage({ searchParams }: Props) {
-  const params = await searchParams;
-  const supabase = await createServerSupabaseClient();
+    const q = searchParams.get("q");
+    const zone = searchParams.get("zone");
+    const level = searchParams.get("level");
+    const material = searchParams.get("material");
 
-  let query = supabase
-    .from("exercises")
-    .select("*")
-    .order("created_at", { ascending: false });
+    if (q) query = query.ilike("name", `%${q}%`);
+    if (zone) query = query.eq("primary_zone", zone);
+    if (level) query = query.eq("level", level);
+    if (material) query = query.contains("material", [material]);
 
-  if (params.q) {
-    query = query.ilike("name", `%${params.q}%`);
-  }
-  if (params.zone) {
-    query = query.eq("primary_zone", params.zone);
-  }
-  if (params.level) {
-    query = query.eq("level", params.level);
-  }
-  if (params.material) {
-    query = query.contains("material", [params.material]);
-  }
+    const { data, error } = await query;
+    setExercises(data ?? []);
+    setError(error?.message ?? null);
+    setLoading(false);
+  }, [supabase, searchParams]);
 
-  const { data: exercises, error } = await query;
+  useEffect(() => {
+    fetchExercises();
+  }, [fetchExercises]);
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -45,22 +53,24 @@ export default async function ExercisesPage({ searchParams }: Props) {
         </Link>
       </div>
 
-      <Suspense>
-        <ExerciseFilters />
-      </Suspense>
+      <ExerciseFilters />
 
       {error && (
         <div className="rounded bg-red-100 p-4 text-red-800">
           <p className="font-semibold">Error</p>
-          <pre className="text-sm">{error.message}</pre>
+          <pre className="text-sm">{error}</pre>
         </div>
       )}
 
-      {!error && exercises?.length === 0 && (
+      {loading && (
+        <p className="text-zinc-400 animate-pulse">Cargando ejercicios...</p>
+      )}
+
+      {!loading && !error && exercises.length === 0 && (
         <p className="text-zinc-500">No hay ejercicios. ¡Crea el primero!</p>
       )}
 
-      {exercises && exercises.length > 0 && (
+      {!loading && exercises.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-2">
           {exercises.map((ex) => (
             <Link

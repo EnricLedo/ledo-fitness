@@ -1,3 +1,5 @@
+"use client";
+
 import ExerciseForm from "@/components/ExerciseForm";
 
 export default function NewExercisePage() {
@@ -8,4 +10,3 @@ export default function NewExercisePage() {
     </div>
   );
 }
-

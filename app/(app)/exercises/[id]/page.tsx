@@ -1,31 +1,54 @@
-import { createServerSupabaseClient } from "@/lib/supabase-server";
-import { notFound } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { createBrowserClient } from "@/lib/supabase";
 import ExerciseForm from "@/components/ExerciseForm";
+import type { Exercise } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+export default function EditExercisePage() {
+  const { id } = useParams<{ id: string }>();
+  const supabase = createBrowserClient();
+  const [exercise, setExercise] = useState<Exercise | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
+  useEffect(() => {
+    supabase
+      .from("exercises")
+      .select("*")
+      .eq("id", id)
+      .single()
+      .then(({ data, error }) => {
+        if (error || !data) {
+          setNotFound(true);
+        } else {
+          setExercise(data);
+        }
+        setLoading(false);
+      });
+  }, [id, supabase]);
 
-export default async function EditExercisePage({ params }: Props) {
-  const { id } = await params;
-  const supabase = await createServerSupabaseClient();
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <p className="text-zinc-400 animate-pulse">Cargando ejercicio...</p>
+      </div>
+    );
+  }
 
-  const { data: exercise, error } = await supabase
-    .from("exercises")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error || !exercise) {
-    notFound();
+  if (notFound) {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <p className="text-zinc-500">Ejercicio no encontrado.</p>
+      </div>
+    );
   }
 
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-6 text-2xl font-bold">Editar ejercicio</h1>
-      <ExerciseForm exercise={exercise} />
+      <ExerciseForm exercise={exercise!} />
     </div>
   );
 }
