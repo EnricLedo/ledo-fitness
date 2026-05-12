@@ -96,7 +96,7 @@ export default function Sidebar() {
               initial={{ x: -SIDEBAR_W }}
               animate={{ x: 0 }}
               exit={{ x: -SIDEBAR_W }}
-              transition={{ type: "spring", damping: 26, stiffness: 300 }}
+              transition={{ type: "spring", damping: 30, stiffness: 500 }}
               drag="x"
               dragConstraints={{ left: -SIDEBAR_W, right: 0 }}
               dragElastic={0.05}
@@ -116,3 +116,4 @@ export default function Sidebar() {
     </>
   );
 }
+
