@@ -45,7 +45,7 @@ export default function Sidebar() {
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <h2 className="mb-6 text-lg font-bold">Ledo Fitness</h2>
+        <h2 className="mb-6 mt-12 text-lg font-bold md:mt-0">Ledo Fitness</h2>
 
         <nav className="flex flex-1 flex-col gap-1">
           {links.map((l) => {
