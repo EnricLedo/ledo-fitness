@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from "@/lib/supabase";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const links = [
   { href: "/exercises", label: "Ejercicios", icon: "🏋️" },
@@ -16,6 +16,21 @@ export default function Sidebar() {
   const supabase = createBrowserClient();
   const [open, setOpen] = useState(false);
 
+  // Swipe tracking
+  const touchStartX = useRef(0);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    // Swipe left (right-to-left) → close
+    if (diff > 60) {
+      setOpen(false);
+    }
+  }
+
   async function handleLogout() {
     await supabase.auth.signOut();
     router.push("/login");
@@ -23,15 +38,17 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="fixed top-3 left-3 z-50 flex h-10 w-10 items-center justify-center rounded-lg border bg-white text-lg shadow-sm md:hidden dark:border-zinc-700 dark:bg-zinc-900"
-      >
-        {open ? "✕" : "☰"}
-      </button>
+      {/* Mobile toggle — hidden when menu is open */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          className="fixed top-3 left-3 z-50 flex h-10 w-10 items-center justify-center rounded-lg border bg-white text-lg shadow-sm md:hidden dark:border-zinc-700 dark:bg-zinc-900"
+        >
+          ☰
+        </button>
+      )}
 
-      {/* Overlay */}
+      {/* Overlay — click to close */}
       {open && (
         <div
           className="fixed inset-0 z-30 bg-black/30 md:hidden"
@@ -39,13 +56,15 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — swipe left to close */}
       <aside
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         className={`fixed inset-y-0 left-0 z-40 flex w-56 flex-col border-r bg-white p-4 transition-transform dark:border-zinc-800 dark:bg-zinc-950 md:static md:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <h2 className="mb-6 mt-12 text-lg font-bold md:mt-0">Ledo Fitness</h2>
+        <h2 className="mb-6 text-lg font-bold">Ledo Fitness</h2>
 
         <nav className="flex flex-1 flex-col gap-1">
           {links.map((l) => {
@@ -78,4 +97,3 @@ export default function Sidebar() {
     </>
   );
 }
-
