@@ -47,7 +47,7 @@ export default function EditExercisePage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-2xl font-bold">Editar ejercicio</h1>
+      <h1 className="mb-6 pl-12 text-2xl font-bold md:pl-0">Editar ejercicio</h1>
       <ExerciseForm exercise={exercise!} />
     </div>
   );

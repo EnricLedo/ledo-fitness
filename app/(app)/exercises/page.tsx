@@ -43,7 +43,7 @@ export default function ExercisesPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between pl-12 md:pl-0">
         <h1 className="text-2xl font-bold">Ejercicios</h1>
         <Link
           href="/exercises/new"

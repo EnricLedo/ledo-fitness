@@ -26,7 +26,7 @@ export default function Sidebar() {
       {/* Mobile toggle */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed top-3 left-3 z-50 rounded-lg border bg-white p-2 text-lg shadow-sm md:hidden dark:border-zinc-700 dark:bg-zinc-900"
+        className="fixed top-3 left-3 z-50 flex h-10 w-10 items-center justify-center rounded-lg border bg-white text-lg shadow-sm md:hidden dark:border-zinc-700 dark:bg-zinc-900"
       >
         {open ? "✕" : "☰"}
       </button>

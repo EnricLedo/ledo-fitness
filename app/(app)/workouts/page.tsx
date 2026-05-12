@@ -3,7 +3,7 @@
 export default function WorkoutsPage() {
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="mb-6 text-2xl font-bold">Entrenos</h1>
+      <h1 className="mb-6 pl-12 text-2xl font-bold md:pl-0">Entrenos</h1>
       <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
         <p className="text-lg text-zinc-400">🚧 Próximamente</p>
         <p className="mt-2 text-sm text-zinc-500">

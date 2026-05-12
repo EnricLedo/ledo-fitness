@@ -32,20 +32,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const supabase = createBrowserClient();
 
   useEffect(() => {
-    // Obtener sesión inicial
+    let mounted = true;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
+      if (mounted) {
+        setSession(session);
+        // Use startTransition or setTimeout to avoid synchronous cascading renders
+        queueMicrotask(() => setLoading(false));
+      }
     });
 
-    // Escuchar cambios
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (mounted) {
+        setSession(newSession);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [supabase]);
 
   return (
